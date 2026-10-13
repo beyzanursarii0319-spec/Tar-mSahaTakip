@@ -104,15 +104,6 @@
                 color: white;
             }
 
-        .badge-status {
-            background: rgba(255, 0, 127, 0.2);
-            color: #ff69b4;
-            border: 1px solid rgba(255, 0, 127, 0.4);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-        }
-
         .table-custom {
             color: #f3f4f6;
         }
@@ -152,7 +143,7 @@
                 <button class="btn btn-glow-purple" data-bs-toggle="modal" data-bs-target="#newFarmerModal">
                     <i class="fa-solid fa-user-plus me-2"></i>Yeni Çiftçi Ekle
                 </button>
-                <button class="btn btn-glow-pink" data-bs-toggle="modal" data-bs-target="#newVisitModal">
+                <button class="btn btn-glow-pink" data-bs-toggle="modal" data-bs-target="#newVisitModal" onclick="loadFarmersForSelect()">
                     <i class="fa-solid fa-calendar-plus me-2"></i>Ziyaret Planla
                 </button>
                 <a href="/openapi/v1.json" target="_blank" class="btn btn-outline-custom">
@@ -161,149 +152,167 @@
             </div>
         </header>
 
-        <!-- BANNER & AKILLI HAVA DURUMU/TARIM TAVSİYESİ WIDGET'I -->
-        <div class="row g-4 mb-4">
-            <div class="col-lg-8">
-                <div class="gradient-banner h-100 d-flex justify-content-between align-items-center">
-                    <div>
-                        <span class="badge bg-white text-dark mb-2 px-3 py-2 rounded-pill fw-semibold">Akıllı Tarım v2.0 ✨</span>
-                        <h1 class="fw-bold display-6">Tarımsal Saha Ziyareti Paneli</h1>
-                        <p class="mb-0 opacity-90">Hava koşullarını analiz edin, ekim zamanlarını planlayın.</p>
-                    </div>
-                    <i class="fa-solid fa-wheat-awn display-1 opacity-25"></i>
-                </div>
-            </div>
+        <!-- HOCANIN İSTEDİĞİ SEKMELER (AYRI SAYFALAR) -->
+        <ul class="nav nav-pills mb-4 gap-2" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="btn btn-outline-custom active" id="pills-farmers-tab" data-bs-toggle="pill" data-bs-target="#pills-farmers" type="button" role="tab">
+                    <i class="fa-solid fa-users me-2"></i>Çiftçi Yönetimi
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="btn btn-outline-custom" id="pills-visits-tab" data-bs-toggle="pill" data-bs-target="#pills-visits" type="button" role="tab" onclick="loadVisits()">
+                    <i class="fa-solid fa-calendar-days me-2"></i>Saha Ziyaretleri & Planlar
+                </button>
+            </li>
+        </ul>
 
-            <!-- YENİ: AKILLI HAVA DURUMU & EKİM TAVSİYESİ KARTI -->
-            <div class="col-lg-4">
-                <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-secondary fw-semibold"><i class="fa-solid fa-cloud-sun text-warning me-2"></i>Ankara / Gölbaşı</span>
-                        <span class="badge bg-warning bg-opacity-25 text-warning border border-warning px-2 py-1">21°C Parçalı Bulutlu</span>
-                    </div>
-                    <div class="my-2">
-                        <div class="small text-secondary mb-1">🌾 Akıllı Ekim & Ziyaret Uyarısı:</div>
-                        <p class="mb-0 fw-medium text-info" style="font-size: 0.95rem;">
-                            "Yarın beklenen yağış öncesi Gölbaşı bölgesindeki buğday tarlalarının gübreleme kontrolleri <u>bugün</u> tamamlanmalı."
-                        </p>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 0.8rem;">
-                        <span>Nem: %45</span>
-                        <span>Rüzgar: 12 km/s</span>
-                        <span class="text-success">Ekim İçin Uygun ✓</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="tab-content" id="pills-tabContent">
 
-        <!-- İSTATİSTİK KARTLARI -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-4">
-                <div class="glass-card p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-secondary fw-medium">Kayıtlı Çiftçiler</span>
-                        <i class="fa-solid fa-users fs-4" style="color: #8a2be2;"></i>
-                    </div>
-                    <div class="stat-value" id="farmer-count">3</div>
-                    <small class="text-success"><i class="fa-solid fa-arrow-up me-1"></i>Aktif Veritabanı</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="glass-card p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-secondary fw-medium">Planlanan Ziyaretler</span>
-                        <i class="fa-solid fa-calendar-check fs-4" style="color: #ff007f;"></i>
-                    </div>
-                    <div class="stat-value" id="visit-count">14</div>
-                    <small class="text-warning"><i class="fa-solid fa-clock me-1"></i>Önümüzdeki 7 gün</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="glass-card p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-secondary fw-medium">Tamamlanan Kontrol</span>
-                        <i class="fa-solid fa-circle-check fs-4 text-info"></i>
-                    </div>
-                    <div class="stat-value">94%</div>
-                    <small class="text-success"><i class="fa-solid fa-check me-1"></i>Yüksek verimlilik</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- GRAFİKLER -->
-        <div class="row g-4 mb-4">
-            <div class="col-lg-7">
-                <div class="glass-card p-4 h-100">
-                    <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-line me-2" style="color: #8a2be2;"></i>Aylık Saha Ziyaret Performansı</h5>
-                    <canvas id="visitChart" height="140"></canvas>
-                </div>
-            </div>
-            <div class="col-lg-5">
-                <div class="glass-card p-4 h-100">
-                    <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-pie me-2" style="color: #ff007f;"></i>Bölgesel Ziyaret Dağılımı</h5>
-                    <canvas id="regionChart" height="140"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- ÇİFTÇİ TABLOSU VE ARAMA ÇUBUĞU -->
-        <div class="row g-4">
-            <div class="col-12">
-                <div class="glass-card p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                        <h5 class="fw-bold mb-0"><i class="fa-solid fa-address-book me-2 text-warning"></i>Kayıtlı Çiftçi Listesi</h5>
-                        <div class="input-group w-auto" style="min-width: 280px;">
-                            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-search"></i></span>
-                            <input type="text" id="searchBox" class="form-control bg-dark text-white border-secondary" placeholder="Çiftçi veya şehir ara..." onkeyup="filterTable()">
+            <!-- SEKME 1: ÇİFTÇİ YÖNETİMİ SAYFASI -->
+            <div class="tab-pane fade show active" id="pills-farmers" role="tabpanel">
+                <!-- BANNER & HAVA DURUMU -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-8">
+                        <div class="gradient-banner h-100 d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-white text-dark mb-2 px-3 py-2 rounded-pill fw-semibold">Akıllı Tarım v2.0 ✨</span>
+                                <h1 class="fw-bold display-6">Tarımsal Saha Ziyareti Paneli</h1>
+                                <p class="mb-0 opacity-90">Hava koşullarını analiz edin, ekim zamanlarını planlayın.</p>
+                            </div>
+                            <i class="fa-solid fa-wheat-awn display-1 opacity-25"></i>
                         </div>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-custom align-middle mb-0">
-                            <thead>
-                                <tr class="text-secondary border-bottom border-secondary">
-                                    <th>ÇİFTÇİ ADI</th>
-                                    <th>ŞEHİR / BÖLGE</th>
-                                    <th>ÜRÜN TİPİ</th>
-                                    <th>DURUM</th>
-                                    <th class="text-end">İŞLEMLER</th>
-                                </tr>
-                            </thead>
-                            <tbody id="farmer-table-body">
-                                <tr>
-                                    <td class="fw-semibold">Ahmet Yılmaz</td>
-                                    <td>Ankara / Polatlı</td>
-                                    <td>Buğday / Arpa</td>
-                                    <td><span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-1 rounded-pill">Aktif</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-light me-1"><i class="fa-solid fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); updateCount();"><i class="fa-solid fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold">Fatma Kaya</td>
-                                    <td>Ankara / Haymana</td>
-                                    <td>Ayçiçeği</td>
-                                    <td><span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-1 rounded-pill">Aktif</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-light me-1"><i class="fa-solid fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); updateCount();"><i class="fa-solid fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold">Mehmet Can</td>
-                                    <td>Ankara / Gölbaşı</td>
-                                    <td>Domates / Biber</td>
-                                    <td><span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-1 rounded-pill">Aktif</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-light me-1"><i class="fa-solid fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); updateCount();"><i class="fa-solid fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="col-lg-4">
+                        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-secondary fw-semibold"><i class="fa-solid fa-cloud-sun text-warning me-2"></i>Ankara / Gölbaşı</span>
+                                <span class="badge bg-warning bg-opacity-25 text-warning border border-warning px-2 py-1">21°C Bulutlu</span>
+                            </div>
+                            <div class="my-2">
+                                <div class="small text-secondary mb-1">🌾 Tarım Tavsiyesi:</div>
+                                <p class="mb-0 fw-medium text-info" style="font-size: 0.95rem;">
+                                    "Yağış öncesi gübreleme kontrolleri tamamlanmalı."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- İSTATİSTİK KARTLARI -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="glass-card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-secondary fw-medium">Kayıtlı Çiftçiler</span>
+                                <i class="fa-solid fa-users fs-4" style="color: #8a2be2;"></i>
+                            </div>
+                            <div class="stat-value" id="farmer-count">3</div>
+                            <small class="text-success"><i class="fa-solid fa-arrow-up me-1"></i>Aktif Veritabanı</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="glass-card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-secondary fw-medium">Planlanan Ziyaretler</span>
+                                <i class="fa-solid fa-calendar-check fs-4" style="color: #ff007f;"></i>
+                            </div>
+                            <div class="stat-value" id="visit-count">14</div>
+                            <small class="text-warning"><i class="fa-solid fa-clock me-1"></i>Önümüzdeki 7 gün</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="glass-card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-secondary fw-medium">Tamamlanan Kontrol</span>
+                                <i class="fa-solid fa-circle-check fs-4 text-info"></i>
+                            </div>
+                            <div class="stat-value">94%</div>
+                            <small class="text-success"><i class="fa-solid fa-check me-1"></i>Yüksek verimlilik</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRAFİKLER -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-7">
+                        <div class="glass-card p-4 h-100">
+                            <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-line me-2" style="color: #8a2be2;"></i>Aylık Saha Ziyaret Performansı</h5>
+                            <canvas id="visitChart" height="140"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="glass-card p-4 h-100">
+                            <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-pie me-2" style="color: #ff007f;"></i>Bölgesel Ziyaret Dağılımı</h5>
+                            <canvas id="regionChart" height="140"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÇİFTÇİ TABLOSU VE ARAMA -->
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="glass-card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                                <h5 class="fw-bold mb-0"><i class="fa-solid fa-address-book me-2 text-warning"></i>Kayıtlı Çiftçi Listesi</h5>
+                                <div class="input-group w-auto" style="min-width: 280px;">
+                                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-search"></i></span>
+                                    <input type="text" id="searchBox" class="form-control bg-dark text-white border-secondary" placeholder="Çiftçi veya şehir ara..." onkeyup="filterFarmersTable()">
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-custom align-middle mb-0">
+                                    <thead>
+                                        <tr class="text-secondary border-bottom border-secondary">
+                                            <th>ÇİFTÇİ ADI</th>
+                                            <th>ŞEHİR / BÖLGE</th>
+                                            <th>ÜRÜN TİPİ</th>
+                                            <th>DURUM</th>
+                                            <th class="text-end">İŞLEMLER</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="farmer-table-body">
+                                        <!-- API'den dolacak -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- SEKME 2: SAHA ZİYARETLERİ & PLANLAR SAYFASI (FİLTRELENEBİLİR) -->
+            <div class="tab-pane fade" id="pills-visits" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="glass-card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                                <h5 class="fw-bold mb-0"><i class="fa-solid fa-calendar-check me-2 text-pink"></i>Saha Ziyaret Planları ve Filtreleme</h5>
+                                <div class="input-group w-auto" style="min-width: 280px;">
+                                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-search"></i></span>
+                                    <input type="text" id="visitSearchBox" class="form-control bg-dark text-white border-secondary" placeholder="Ziyaretlerde ara..." onkeyup="filterVisitsTable()">
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-custom align-middle mb-0">
+                                    <thead>
+                                        <tr class="text-secondary border-bottom border-secondary">
+                                            <th>ÇİFTÇİ ADI</th>
+                                            <th>ZİYARET TARİHİ</th>
+                                            <th>ZİYARET TİPİ</th>
+                                            <th>DURUM</th>
+                                            <th>NOTLAR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="visit-table-body">
+                                        <!-- API'den dolacak -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -327,7 +336,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-secondary">Yetiştirilen Ürün</label>
-                            <input type="text" id="farmerCrop" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Mısır, Pamuk" required>
+                            <input type="text" id="farmerCrop" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Buğday, Mısır" required>
                         </div>
                         <button type="submit" class="btn btn-glow-purple w-100 mt-2">Çiftçiyi Sisteme Kaydet</button>
                     </form>
@@ -336,7 +345,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: YENİ ZİYARET PLANLA -->
+    <!-- MODAL 2: YENİ ZİYARET PLANLA (HOCANIN İSTEDİĞİ İLİŞKİSEL SELECT ALANI) -->
     <div class="modal fade" id="newVisitModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content glass-card text-white border-secondary">
@@ -347,16 +356,27 @@
                 <div class="modal-body">
                     <form id="visitForm">
                         <div class="mb-3">
-                            <label class="form-label text-secondary">Çiftçi Seçin</label>
-                            <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Ahmet Yılmaz" required>
+                            <label class="form-label text-secondary">Çiftçi Seçin (Veritabanından İlişkisel Seçim)</label>
+                            <select id="visitFarmerSelect" class="form-select bg-dark text-white border-secondary" required>
+                                <option value="">Çiftçiler Yükleniyor...</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-secondary">Ziyaret Tarihi</label>
-                            <input type="date" class="form-control bg-dark text-white border-secondary" required>
+                            <input type="date" id="visitDate" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Ziyaret Tipi</label>
+                            <select id="visitType" class="form-select bg-dark text-white border-secondary">
+                                <option value="0">Rutin Kontrol</option>
+                                <option value="1">İlaçlama</option>
+                                <option value="2">Gübreleme</option>
+                                <option value="3">Hasat</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-secondary">Notlar & Saha İncelemesi</label>
-                            <textarea class="form-control bg-dark text-white border-secondary" rows="3" placeholder="Saha durumu notları..."></textarea>
+                            <textarea id="visitNotes" class="form-control bg-dark text-white border-secondary" rows="3" placeholder="Saha durumu notları..."></textarea>
                         </div>
                         <button type="submit" class="btn btn-glow-pink w-100 mt-2">Randevuyu Kaydet</button>
                     </form>
@@ -365,7 +385,7 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
                 function showToast(message) {
@@ -375,20 +395,165 @@
                     toast.show();
                 }
 
-                function updateCount() {
-                    const count = document.querySelectorAll('#farmer-table-body tr').length;
-                    document.getElementById('farmer-count').textContent = count;
+                // Çiftçileri Listeleme
+                async function loadFarmers() {
+                    try {
+                        const response = await fetch('/api/farmers');
+                        const result = await response.json();
+                        const tbody = document.getElementById('farmer-table-body');
+                        tbody.innerHTML = '';
+
+                        const farmers = result.items || result;
+                        farmers.forEach(f => {
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td class="fw-semibold">${f.fullName}</td>
+                                    <td>${f.region || f.city || 'Ankara'}</td>
+                                    <td>${f.district || f.crop || 'Buğday'}</td>
+                                    <td><span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-1 rounded-pill">Aktif</span></td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteFarmer('${f.id}')"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        document.getElementById('farmer-count').textContent = farmers.length;
+                    } catch (err) {
+                        console.error("Çiftçi yükleme hatası:", err);
+                    }
                 }
 
-                function filterTable() {
+                // Ziyaret Planla Modali İçin Select Doldurma
+                async function loadFarmersForSelect() {
+                    try {
+                        const response = await fetch('/api/farmers');
+                        const result = await response.json();
+                        const select = document.getElementById('visitFarmerSelect');
+                        select.innerHTML = '<option value="">-- Çiftçi Seçin --</option>';
+
+                        const farmers = result.items || result;
+                        farmers.forEach(f => {
+                            select.innerHTML += `<option value="${f.id}">${f.fullName}</option>`;
+                        });
+                    } catch (err) {
+                        console.error("Select doldurulamadı:", err);
+                    }
+                }
+
+                // Ziyaretleri Listeleme
+                async function loadVisits() {
+                    try {
+                        const response = await fetch('/api/farmvisits');
+                        const visits = await response.json();
+                        const tbody = document.getElementById('visit-table-body');
+                        tbody.innerHTML = '';
+
+                        visits.forEach(v => {
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td class="fw-semibold">${v.farmerName || 'Bilinmiyor'}</td>
+                                    <td>${v.visitDate ? v.visitDate.split('T')[0] : ''}</td>
+                                    <td><span class="badge bg-primary bg-opacity-25 text-white border border-primary px-3 py-1 rounded-pill">${v.visitType}</span></td>
+                                    <td><span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-1 rounded-pill">${v.status}</span></td>
+                                    <td>${v.notes || '-'}</td>
+                                </tr>
+                            `;
+                        });
+                        document.getElementById('visit-count').textContent = visits.length;
+                    } catch (err) {
+                        console.error("Ziyaret yükleme hatası:", err);
+                    }
+                }
+
+                // Çiftçi Silme
+                async function deleteFarmer(id) {
+                    if (!confirm("Bu çiftçiyi silmek istediğinize emin misiniz?")) return;
+                    try {
+                        const response = await fetch(`/api/farmers/${id}`, { method: 'DELETE' });
+                        if (response.ok) {
+                            showToast('🗑️ Çiftçi başarıyla silindi!');
+                            loadFarmers();
+                            loadFarmersForSelect();
+                        } else {
+                            alert("Bağlı ziyaret kaydı bulunan çiftçi silinemez!");
+                        }
+                    } catch (err) {
+                        alert("Silme hatası oluştu.");
+                    }
+                }
+
+                // Çiftçi Ekleme Formu
+                document.getElementById('farmerForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const dto = {
+                        fullName: document.getElementById('farmerName').value,
+                        region: document.getElementById('farmerCity').value,
+                        district: document.getElementById('farmerCrop').value,
+                        nationalId: "11111111111",
+                        phoneNumber: "05320000000"
+                    };
+
+                    const response = await fetch('/api/farmers', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dto)
+                    });
+
+                    if (response.ok) {
+                        bootstrap.Modal.getInstance(document.getElementById('newFarmerModal')).hide();
+                        this.reset();
+                        loadFarmers();
+                        loadFarmersForSelect();
+                        showToast('🎉 Yeni çiftçi başarıyla kaydedildi!');
+                    } else {
+                        alert('Kayıt başarısız oldu.');
+                    }
+                });
+
+                // Ziyaret Ekleme Formu (Relational)
+                document.getElementById('visitForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const dto = {
+                        farmerId: document.getElementById('visitFarmerSelect').value,
+                        visitDate: document.getElementById('visitDate').value,
+                        visitType: parseInt(document.getElementById('visitType').value),
+                        notes: document.getElementById('visitNotes').value
+                    };
+
+                    const response = await fetch('/api/farmvisits', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dto)
+                    });
+
+                    if (response.ok) {
+                        bootstrap.Modal.getInstance(document.getElementById('newVisitModal')).hide();
+                        this.reset();
+                        loadVisits();
+                        showToast('📅 Saha ziyareti başarıyla planlandı!');
+                    } else {
+                        alert('Ziyaret planlanırken hata oluştu.');
+                    }
+                });
+
+                // Filtreleme Fonksiyonları
+                function filterFarmersTable() {
                     const input = document.getElementById('searchBox').value.toLowerCase();
                     const rows = document.querySelectorAll('#farmer-table-body tr');
                     rows.forEach(row => {
-                        const text = row.textContent.toLowerCase();
-                        row.style.display = text.includes(input) ? '' : 'none';
+                        row.style.display = row.textContent.toLowerCase().includes(input) ? '' : 'none';
                     });
                 }
 
+                function filterVisitsTable() {
+                    const input = document.getElementById('visitSearchBox').value.toLowerCase();
+                    const rows = document.querySelectorAll('#visit-table-body tr');
+                    rows.forEach(row => {
+                        row.style.display = row.textContent.toLowerCase().includes(input) ? '' : 'none';
+                    });
+                }
+
+                // Grafikler
                 const ctx1 = document.getElementById('visitChart').getContext('2d');
                 new Chart(ctx1, {
                     type: 'line',
@@ -427,44 +592,15 @@
                     },
                     options: {
                         responsive: true,
-                        plugins: {
-                            legend: { position: 'bottom', labels: { color: '#9ca3af' } }
-                        }
+                        plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af' } } }
                     }
                 });
 
-                document.getElementById('farmerForm').addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const name = document.getElementById('farmerName').value;
-                    const city = document.getElementById('farmerCity').value;
-                    const crop = document.getElementById('farmerCrop').value;
-
-                    const tbody = document.getElementById('farmer-table-body');
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="fw-semibold">${name}</td>
-                            <td>${city}</td>
-                            <td>${crop}</td>
-                            <td><span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-1 rounded-pill">Aktif</span></td>
-                            <td class="text-end">
-                                <button class="btn btn-sm btn-outline-light me-1"><i class="fa-solid fa-eye"></i></button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); updateCount();"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-
-                    bootstrap.Modal.getInstance(document.getElementById('newFarmerModal')).hide();
-                    this.reset();
-                    updateCount();
-                    showToast('🎉 Yeni çiftçi başarıyla kaydedildi!');
-                });
-
-                document.getElementById('visitForm').addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    bootstrap.Modal.getInstance(document.getElementById('newVisitModal')).hide();
-                    this.reset();
-                    showToast('📅 Yeni saha ziyareti ve hava uyarı planı oluşturuldu!');
-                });
+                // Sayfa açılış yüklemesi
+                window.onload = function() {
+                    loadFarmers();
+                    loadVisits();
+                };
     </script>
 </body>
 </html>
