@@ -1,0 +1,470 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarımsal Saha Ziyareti Yönetim Paneli | Pro</title>
+    <!-- Fonts & Icons & Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-body: #0d0e12;
+            --card-bg: rgba(22, 24, 34, 0.85);
+            --primary-accent: #8a2be2;
+            --pink-accent: #ff007f;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(138, 43, 226, 0.15) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(255, 0, 127, 0.15) 0%, transparent 40%);
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .glass-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 30px rgba(138, 43, 226, 0.25);
+            }
+
+        .gradient-banner {
+            background: linear-gradient(135deg, #8a2be2 0%, #ff007f 100%);
+            border-radius: 24px;
+            padding: 35px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(255, 0, 127, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2.4rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #fff, #ffb6c1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-glow-pink {
+            background: linear-gradient(45deg, #8a2be2, #ff007f);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4);
+            transition: all 0.3s;
+        }
+
+            .btn-glow-pink:hover {
+                transform: scale(1.03);
+                color: white;
+                box-shadow: 0 6px 20px rgba(255, 0, 127, 0.6);
+            }
+
+        .btn-glow-purple {
+            background: linear-gradient(45deg, #3b82f6, #8a2be2);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
+            transition: all 0.3s;
+        }
+
+            .btn-glow-purple:hover {
+                transform: scale(1.03);
+                color: white;
+            }
+
+        .btn-outline-custom {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e0e0e0;
+            border-radius: 12px;
+            padding: 10px 20px;
+            transition: 0.3s;
+        }
+
+            .btn-outline-custom:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+            }
+
+        .badge-status {
+            background: rgba(255, 0, 127, 0.2);
+            color: #ff69b4;
+            border: 1px solid rgba(255, 0, 127, 0.4);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .table-custom {
+            color: #f3f4f6;
+        }
+
+            .table-custom tbody tr {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                transition: 0.2s;
+            }
+
+                .table-custom tbody tr:hover {
+                    background: rgba(255, 255, 255, 0.03);
+                }
+    </style>
+</head>
+<body class="p-4">
+
+    <!-- TOAST BİLDİRİM ALANI -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+        <div id="liveToast" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg" role="alert">
+            <div class="d-flex">
+                <div class="toast-body fw-semibold" id="toastMessage">
+                    🎉 İşlem başarıyla gerçekleştirildi!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid max-width-1400">
+        <!-- HEADER -->
+        <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h2 class="fw-bold mb-1"><i class="fa-solid fa-leaf text-success me-2"></i>Saha Takip Portalı</h2>
+                <p class="text-secondary mb-0">Tarımsal Ziyaret & Çiftçi Yönetim Arayüzü</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-glow-purple" data-bs-toggle="modal" data-bs-target="#newFarmerModal">
+                    <i class="fa-solid fa-user-plus me-2"></i>Yeni Çiftçi Ekle
+                </button>
+                <button class="btn btn-glow-pink" data-bs-toggle="modal" data-bs-target="#newVisitModal">
+                    <i class="fa-solid fa-calendar-plus me-2"></i>Ziyaret Planla
+                </button>
+                <a href="/openapi/v1.json" target="_blank" class="btn btn-outline-custom">
+                    <i class="fa-solid fa-code me-2"></i>Swagger JSON
+                </a>
+            </div>
+        </header>
+
+        <!-- BANNER & AKILLI HAVA DURUMU/TARIM TAVSİYESİ WIDGET'I -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="gradient-banner h-100 d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-white text-dark mb-2 px-3 py-2 rounded-pill fw-semibold">Akıllı Tarım v2.0 ✨</span>
+                        <h1 class="fw-bold display-6">Tarımsal Saha Ziyareti Paneli</h1>
+                        <p class="mb-0 opacity-90">Hava koşullarını analiz edin, ekim zamanlarını planlayın.</p>
+                    </div>
+                    <i class="fa-solid fa-wheat-awn display-1 opacity-25"></i>
+                </div>
+            </div>
+
+            <!-- YENİ: AKILLI HAVA DURUMU & EKİM TAVSİYESİ KARTI -->
+            <div class="col-lg-4">
+                <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-secondary fw-semibold"><i class="fa-solid fa-cloud-sun text-warning me-2"></i>Ankara / Gölbaşı</span>
+                        <span class="badge bg-warning bg-opacity-25 text-warning border border-warning px-2 py-1">21°C Parçalı Bulutlu</span>
+                    </div>
+                    <div class="my-2">
+                        <div class="small text-secondary mb-1">🌾 Akıllı Ekim & Ziyaret Uyarısı:</div>
+                        <p class="mb-0 fw-medium text-info" style="font-size: 0.95rem;">
+                            "Yarın beklenen yağış öncesi Gölbaşı bölgesindeki buğday tarlalarının gübreleme kontrolleri <u>bugün</u> tamamlanmalı."
+                        </p>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 0.8rem;">
+                        <span>Nem: %45</span>
+                        <span>Rüzgar: 12 km/s</span>
+                        <span class="text-success">Ekim İçin Uygun ✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- İSTATİSTİK KARTLARI -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-secondary fw-medium">Kayıtlı Çiftçiler</span>
+                        <i class="fa-solid fa-users fs-4" style="color: #8a2be2;"></i>
+                    </div>
+                    <div class="stat-value" id="farmer-count">3</div>
+                    <small class="text-success"><i class="fa-solid fa-arrow-up me-1"></i>Aktif Veritabanı</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-secondary fw-medium">Planlanan Ziyaretler</span>
+                        <i class="fa-solid fa-calendar-check fs-4" style="color: #ff007f;"></i>
+                    </div>
+                    <div class="stat-value" id="visit-count">14</div>
+                    <small class="text-warning"><i class="fa-solid fa-clock me-1"></i>Önümüzdeki 7 gün</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-secondary fw-medium">Tamamlanan Kontrol</span>
+                        <i class="fa-solid fa-circle-check fs-4 text-info"></i>
+                    </div>
+                    <div class="stat-value">94%</div>
+                    <small class="text-success"><i class="fa-solid fa-check me-1"></i>Yüksek verimlilik</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRAFİKLER -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-7">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-line me-2" style="color: #8a2be2;"></i>Aylık Saha Ziyaret Performansı</h5>
+                    <canvas id="visitChart" height="140"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-pie me-2" style="color: #ff007f;"></i>Bölgesel Ziyaret Dağılımı</h5>
+                    <canvas id="regionChart" height="140"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÇİFTÇİ TABLOSU VE ARAMA ÇUBUĞU -->
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <h5 class="fw-bold mb-0"><i class="fa-solid fa-address-book me-2 text-warning"></i>Kayıtlı Çiftçi Listesi</h5>
+                        <div class="input-group w-auto" style="min-width: 280px;">
+                            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-search"></i></span>
+                            <input type="text" id="searchBox" class="form-control bg-dark text-white border-secondary" placeholder="Çiftçi veya şehir ara..." onkeyup="filterTable()">
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom align-middle mb-0">
+                            <thead>
+                                <tr class="text-secondary border-bottom border-secondary">
+                                    <th>ÇİFTÇİ ADI</th>
+                                    <th>ŞEHİR / BÖLGE</th>
+                                    <th>ÜRÜN TİPİ</th>
+                                    <th>DURUM</th>
+                                    <th class="text-end">İŞLEMLER</th>
+                                </tr>
+                            </thead>
+                            <tbody id="farmer-table-body">
+                                <tr>
+                                    <td class="fw-semibold">Ahmet Yılmaz</td>
+                                    <td>Ankara / Polatlı</td>
+                                    <td>Buğday / Arpa</td>
+                                    <td><span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-1 rounded-pill">Aktif</span></td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-light me-1"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); updateCount();"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold">Fatma Kaya</td>
+                                    <td>Ankara / Haymana</td>
+                                    <td>Ayçiçeği</td>
+                                    <td><span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-1 rounded-pill">Aktif</span></td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-light me-1"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); updateCount();"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold">Mehmet Can</td>
+                                    <td>Ankara / Gölbaşı</td>
+                                    <td>Domates / Biber</td>
+                                    <td><span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-1 rounded-pill">Aktif</span></td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-light me-1"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); updateCount();"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 1: YENİ ÇİFTÇİ EKLE -->
+    <div class="modal fade" id="newFarmerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-card text-white border-secondary">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-plus me-2" style="color: #8a2be2;"></i>Yeni Çiftçi Kaydı</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="farmerForm">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Ad Soyad</label>
+                            <input type="text" id="farmerName" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Ali Öztürk" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Şehir / İlçe</label>
+                            <input type="text" id="farmerCity" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Ankara / Gölbaşı" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Yetiştirilen Ürün</label>
+                            <input type="text" id="farmerCrop" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Mısır, Pamuk" required>
+                        </div>
+                        <button type="submit" class="btn btn-glow-purple w-100 mt-2">Çiftçiyi Sisteme Kaydet</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: YENİ ZİYARET PLANLA -->
+    <div class="modal fade" id="newVisitModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-card text-white border-secondary">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-calendar-plus me-2" style="color: #ff007f;"></i>Saha Ziyareti Planla</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="visitForm">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Çiftçi Seçin</label>
+                            <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Ahmet Yılmaz" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Ziyaret Tarihi</label>
+                            <input type="date" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Notlar & Saha İncelemesi</label>
+                            <textarea class="form-control bg-dark text-white border-secondary" rows="3" placeholder="Saha durumu notları..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-glow-pink w-100 mt-2">Randevuyu Kaydet</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+                function showToast(message) {
+                    document.getElementById('toastMessage').textContent = message;
+                    const toastEl = document.getElementById('liveToast');
+                    const toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+                }
+
+                function updateCount() {
+                    const count = document.querySelectorAll('#farmer-table-body tr').length;
+                    document.getElementById('farmer-count').textContent = count;
+                }
+
+                function filterTable() {
+                    const input = document.getElementById('searchBox').value.toLowerCase();
+                    const rows = document.querySelectorAll('#farmer-table-body tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(input) ? '' : 'none';
+                    });
+                }
+
+                const ctx1 = document.getElementById('visitChart').getContext('2d');
+                new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran'],
+                        datasets: [{
+                            label: 'Ziyaret Sayısı',
+                            data: [12, 19, 15, 25, 22, 30],
+                            borderColor: '#ff007f',
+                            backgroundColor: 'rgba(255, 0, 127, 0.15)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
+                            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } }
+                        }
+                    }
+                });
+
+                const ctx2 = document.getElementById('regionChart').getContext('2d');
+                new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Polatlı', 'Haymana', 'Gölbaşı', 'Ayaş'],
+                        datasets: [{
+                            data: [40, 25, 20, 15],
+                            backgroundColor: ['#ff007f', '#8a2be2', '#3b82f6', '#10b981'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: '#9ca3af' } }
+                        }
+                    }
+                });
+
+                document.getElementById('farmerForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const name = document.getElementById('farmerName').value;
+                    const city = document.getElementById('farmerCity').value;
+                    const crop = document.getElementById('farmerCrop').value;
+
+                    const tbody = document.getElementById('farmer-table-body');
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="fw-semibold">${name}</td>
+                            <td>${city}</td>
+                            <td>${crop}</td>
+                            <td><span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-1 rounded-pill">Aktif</span></td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-light me-1"><i class="fa-solid fa-eye"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); updateCount();"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+
+                    bootstrap.Modal.getInstance(document.getElementById('newFarmerModal')).hide();
+                    this.reset();
+                    updateCount();
+                    showToast('🎉 Yeni çiftçi başarıyla kaydedildi!');
+                });
+
+                document.getElementById('visitForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    bootstrap.Modal.getInstance(document.getElementById('newVisitModal')).hide();
+                    this.reset();
+                    showToast('📅 Yeni saha ziyareti ve hava uyarı planı oluşturuldu!');
+                });
+    </script>
+</body>
+</html>
